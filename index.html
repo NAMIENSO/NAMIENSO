@@ -615,10 +615,10 @@ const response = await fetch(
     if (!text) throw new Error('応答が空でした');
     console.log('API response:', text);
 
-　　const jsonMatch = text.match(/\{[\s\S]*\}/);
+　　const stripped = text.replace(/```json/g, '').replace(/```/g, '').trim();
+　　const jsonMatch = stripped.match(/\{[\s\S]*\}/);
 　　if (!jsonMatch) throw new Error('JSONが見つかりませんでした');
-　　const clean = jsonMatch[0].replace(/```json|```/g, '').trim();
-　　const parsed = JSON.parse(clean);
+　　const parsed = JSON.parse(jsonMatch[0]);
 
     renderResult(result);
 
