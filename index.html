@@ -638,6 +638,7 @@ function renderResult(result) {
     container.innerHTML = `<div class="zen0">${result.log.replace(/\n/g, '<br>')}</div>`;
   } else {
     const p = result.params;
+    console.log('parsed result:', JSON.stringify(result));
     container.innerHTML = `
       <div class="result-title">${result.title}</div>
       <div class="result-body">${result.body}</div>
