@@ -614,8 +614,9 @@ const response = await fetch(
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error('応答が空でした');
 
-    const clean = text.replace(/```json|```/g, '').trim();
-    const result = JSON.parse(clean);
+　　const jsonMatch = text.match(/\{[\s\S]*\}/);
+　　if (!jsonMatch) throw new Error('JSONが見つかりませんでした');
+　　const parsed = JSON.parse(jsonMatch[0]);
 
     renderResult(result);
 
