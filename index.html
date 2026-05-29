@@ -617,7 +617,8 @@ const response = await fetch(
 
 　　const jsonMatch = text.match(/\{[\s\S]*\}/);
 　　if (!jsonMatch) throw new Error('JSONが見つかりませんでした');
-　　const parsed = JSON.parse(jsonMatch[0]);
+　　const clean = jsonMatch[0].replace(/```json|```/g, '').trim();
+　　const parsed = JSON.parse(clean);
 
     renderResult(result);
 
