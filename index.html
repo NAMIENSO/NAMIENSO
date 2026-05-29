@@ -593,10 +593,11 @@ async function generate() {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ parts: [{ text: userInput }] }],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 1000 }
+　　　　　body: JSON.stringify({
+  　　　　contents: [
+   　　　 { role: 'user', parts: [{ text: SYSTEM_PROMPT + '\n\n' + userInput }] }
+  　　　],
+  　　　　generationConfig: { temperature: 0.8, maxOutputTokens: 1000 }
         })
       }
     );
