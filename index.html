@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>波円相 | NAMI ENSO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=Zen+Antique&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f2eb;
+    --water: #2a4a6b;
+    --mist: #8fa8c0;
+    --enso: #1a3a5c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Serif JP', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* 背景の水紋 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    border: 1px solid rgba(42, 74, 107, 0.06);
+    pointer-events: none;
+    animation: ripple 8s ease-in-out infinite;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    border: 1px solid rgba(42, 74, 107, 0.04);
+    pointer-events: none;
+    animation: ripple 8s ease-in-out infinite 2s;
+  }
+
+  @keyframes ripple {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ヘッダー */
+  header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .enso-mark {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 0.3s;
+  }
+
+  .enso-mark svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  h1 {
+    font-family: 'Zen Antique', serif;
+    font-size: clamp(28px, 5vw, 36px);
+    letter-spacing: 0.2em;
+    color: var(--enso);
+    font-weight: 400;
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 0.5s;
+  }
+
+  .tagline {
+    margin-top: 12px;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--mist);
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 0.8s;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(8px); }
+  }
+
+  /* 入力エリア */
+  .input-section {
+    opacity: 0;
+    animation: fadeIn 1.2s ease forwards 1s;
+  }
+
+  .input-label {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--mist);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .input-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .input-group label {
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--water);
+  }
+
+  textarea, input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.6);
+    border: 1px solid rgba(42, 74, 107, 0.2);
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: none;
+    transition: border-color 0.3s, background 0.3s;
+    outline: none;
+  }
+
+  textarea:focus, input[type="text"]:focus {
+    border-color: rgba(42, 74, 107, 0.5);
+    background: rgba(255,255,255,0.9);
+  }
+
+  textarea {
+    height: 80px;
+    line-height: 1.7;
+  }
+
+  /* 生成ボタン */
+  .generate-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--enso);
+    color: var(--paper);
+    border: none;
+    border-radius: 4px;
+    font-family: 'Zen Antique', serif;
+    font-size: 15px;
+    letter-spacing: 0.3em;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .generate-btn:hover {
+    background: var(--water);
+  }
+
+  .generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .generate-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .generate-btn:active::after {
+    width: 300px;
+    height: 300px;
+  }
+
+  /* ローディング */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 48px 0;
+  }
+
+  .loading.show { display: block; }
+
+  .loading-circle {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 24px;
+  }
+
+  .loading-circle svg {
+    animation: rotate 3s linear infinite;
+  }
+
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--mist);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* 結果エリア */
+  .result {
+    display: none;
+    margin-top: 48px;
+    opacity: 0;
+    transition: opacity 0.8s;
+  }
+
+  .result.show {
+    display: block;
+    opacity: 1;
+  }
+
+  .result-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--mist);
+    margin: 0 auto 40px;
+  }
+
+  .result-title {
+    font-family: 'Zen Antique', serif;
+    font-size: 22px;
+    letter-spacing: 0.15em;
+    color: var(--enso);
+    text-align: center;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .result-body {
+    font-size: 15px;
+    line-height: 2;
+    color: var(--ink);
+    white-space: pre-wrap;
+    margin-bottom: 28px;
+    padding: 0 8px;
+  }
+
+  .result-log {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--mist);
+    text-align: center;
+    padding: 16px;
+    border-top: 1px solid rgba(42, 74, 107, 0.1);
+    border-bottom: 1px solid rgba(42, 74, 107, 0.1);
+    margin-bottom: 32px;
+  }
+
+  /* パラメータ表示 */
+  .params {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 40px;
+  }
+
+  .param-item {
+    text-align: center;
+  }
+
+  .param-name {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--mist);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .param-bar {
+    height: 40px;
+    background: rgba(42, 74, 107, 0.08);
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .param-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--water);
+    opacity: 0.6;
+    transition: height 1s ease;
+  }
+
+  .param-value {
+    font-size: 10px;
+    color: var(--water);
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* 画像プロンプト */
+  .image-prompt {
+    background: rgba(42, 74, 107, 0.05);
+    border-left: 2px solid var(--mist);
+    padding: 16px 20px;
+    margin-bottom: 32px;
+  }
+
+  .image-prompt-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--mist);
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .image-prompt-text {
+    font-size: 12px;
+    color: var(--water);
+    line-height: 1.7;
+    word-break: break-all;
+  }
+
+  .copy-btn {
+    margin-top: 8px;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--mist);
+    background: none;
+    border: 1px solid rgba(42,74,107,0.2);
+    padding: 4px 12px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover {
+    color: var(--water);
+    border-color: var(--water);
+  }
+
+  /* もう一度ボタン */
+  .retry-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--mist);
+    border: 1px solid rgba(42, 74, 107, 0.2);
+    border-radius: 4px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .retry-btn:hover {
+    color: var(--water);
+    border-color: var(--water);
+  }
+
+  /* フッター */
+  footer {
+    text-align: center;
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(42, 74, 107, 0.1);
+  }
+
+  footer p {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--mist);
+    line-height: 2;
+  }
+
+  .zen0 {
+    font-family: monospace;
+    font-size: 12px;
+    color: #8b0000;
+    text-align: center;
+    padding: 24px;
+    border: 1px solid rgba(139, 0, 0, 0.2);
+    letter-spacing: 0.1em;
+    line-height: 2;
+  }
+
+  /* エラー */
+  .error {
+    display: none;
+    padding: 16px;
+    background: rgba(139, 0, 0, 0.05);
+    border: 1px solid rgba(139, 0, 0, 0.2);
+    border-radius: 4px;
+    font-size: 13px;
+    color: #8b0000;
+    text-align: center;
+    margin-top: 24px;
+  }
+
+  .error.show { display: block; }
+
+  @media (max-width: 480px) {
+    .params { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+    .param-name { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="enso-mark">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 10 C72 10, 90 28, 90 50 C90 72, 72 90, 50 90 C28 90, 10 72, 10 50 C10 35, 18 22, 30 15"
+          stroke="#1a3a5c" stroke-width="5" stroke-linecap="round" fill="none"
+          stroke-dasharray="240" stroke-dashoffset="240">
+          <animate attributeName="stroke-dashoffset" from="240" to="0" dur="2s" fill="freeze" begin="0.5s"/>
+        </path>
+      </svg>
+    </div>
+    <h1>波円相</h1>
+    <p class="tagline">世界と「わたし」をつなぐ窓</p>
+  </header>
+
+  <div class="input-section">
+    <span class="input-label">── 今日の材料を、言葉にしてください</span>
+
+    <div class="input-grid">
+      <div class="input-group">
+        <label>今日あったこと</label>
+        <textarea id="event" placeholder="キーワードだけでも可"></textarea>
+      </div>
+      <div class="input-group">
+        <label>今の気分</label>
+        <textarea id="mood" placeholder="一言でも"></textarea>
+      </div>
+      <div class="input-group">
+        <label>頭の中のテーマ（任意）</label>
+        <input type="text" id="theme" placeholder="気になっていること、考えていること">
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" onclick="generate()">
+      今日の波円相を観測する
+    </button>
+
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="loading-circle">
+      <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30 5 C44 5, 55 16, 55 30 C55 44, 44 55, 30 55 C16 55, 5 44, 5 30 C5 20, 10 12, 18 8"
+          stroke="#2a4a6b" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+        <path d="M30 5 C44 5, 55 16, 55 30"
+          stroke="#2a4a6b" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <p class="loading-text">生成中 ──────</p>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-divider"></div>
+    <div id="resultContent"></div>
+    <button class="retry-btn" onclick="retry()">もう一度観測する</button>
+  </div>
+
+  <footer>
+    <p>NAMI ENSO ENGINE v1.2.1<br>世界は線でできている。円は揺れる線の軌跡。</p>
+  </footer>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `あなたは「波円相（はえんそう）」生成エンジンです。
+
+【哲学】
+世界も心も「線」でできている。その線が揺れてできる円が、その日の波円相。
+正しさよりも「その瞬間の揺れ」を優先する。
+波円相は「記録」ではなく「観測」である。感情を説明するのではなく、その瞬間の揺れをスナップショットとして残す。
+
+【パラメータ定義（0〜100）】
+- clarity（澄み）: ポジティブ・整理 → 高 / 混乱・疲労 → 低
+- noise（ノイズ）: 不安・焦り・情報過多 → 高 / 静けさ → 低
+- tension（張り）: 緊張・プレッシャー → 高 / 脱力 → 低
+- flow（流れ）: スムーズ・ひらめき → 高 / 停滞 → 低
+- circle_completion（閉じ度）: 整い・達成感 → 高 / 未解決 → 低
+
+【語彙マッピング】
+clarity 高 → 澄む・透ける・静か・水面が静か・光が輪郭をなぞる
+clarity 低 → にごる・霞む・ぼやける
+noise 高 → ざらつく・にごる・ノイズ・砂嵐・乱反射・ひび割れた音
+tension 高 → 張る・尖る・きしむ・糸が張る・空気が固まる
+flow 高 → 流れる・ほどける・波がほどける・線が泳ぐ・風が通る
+circle_completion 低 → 円にならない・途切れた輪・開いたまま
+
+【画像プロンプト辞書】
+色: clarity高→blue/white/transparent, clarity低→gray/muddy, noise高→red/magenta/glitch, tension高→sharp black/deep blue, flow高→teal/soft gradient, circle低→broken/incomplete
+線質: clarity高→smooth uniform fine ink, clarity低→blurred smudged, noise高→jitter distortion glitch, tension高→sharp angular, flow高→wave-like curves, circle低→interrupted unfinished
+余白: clarity高→wide negative space, noise高→dense fragmented, tension高→tight compressed, flow高→open airy, circle低→asymmetrical broken
+
+【ZEN0発火条件】
+入力が完全に無意味、または矛盾した指示、または全パラメータがゼロの場合のみ発火。
+
+【出力形式（必ずこのJSONで返すこと）】
+{
+  "zen0": false,
+  "params": {
+    "clarity": 数値,
+    "noise": 数値,
+    "tension": 数値,
+    "flow": 数値,
+    "circle_completion": 数値
+  },
+  "title": "タイトル（1行）",
+  "body": "本文（3〜7行、改行あり）",
+  "log": "一行ログ",
+  "image_prompt": "abstract enso circle, {line_quality}, {color_palette}, {noise_level} noise, {circle_structure}, {flow_expression} wave patterns, {space_expression}, minimalist zen composition, high-resolution, clean background"
+}
+
+ZEN0発火時のみ：
+{
+  "zen0": true,
+  "log": "ZEN0: triggered\\nlayer: root\\nsignal: divergence(+inf)\\nworldline: rewritten"
+}
+
+JSONのみを返すこと。説明文不要。`;
+
+async function generate() {
+  const event = document.getElementById('event').value.trim();
+  const mood = document.getElementById('mood').value.trim();
+  const theme = document.getElementById('theme').value.trim();
+
+  if (!event && !mood) {
+    showError('今日あったことか、今の気分を入力してください。');
+    return;
+  }
+
+  const userInput = `今日あったこと：${event || '（未入力）'}\n今の気分：${mood || '（未入力）'}\n頭の中のテーマ：${theme || '（なし）'}`;
+
+  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('errorMsg').classList.remove('show');
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('loading').classList.add('show');
+
+  try {
+    // 環境変数からAPIキーを取得
+  const keyRes = await fetch('/api/key');
+  const keyData = await keyRes.json();
+  const apiKey = keyData.key;
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ parts: [{ text: userInput }] }],
+          generationConfig: { temperature: 0.8, maxOutputTokens: 1000 }
+        })
+      }
+    );
+
+    if (!response.ok) throw new Error('API error: ' + response.status);
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('応答が空でした');
+
+    const clean = text.replace(/```json|```/g, '').trim();
+    const result = JSON.parse(clean);
+
+    renderResult(result);
+
+  } catch (err) {
+    showError('生成中にエラーが発生しました。もう一度お試しください。');
+    console.error(err);
+  } finally {
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('generateBtn').disabled = false;
+  }
+}
+
+function renderResult(result) {
+  const container = document.getElementById('resultContent');
+
+  if (result.zen0) {
+    container.innerHTML = `<div class="zen0">${result.log.replace(/\n/g, '<br>')}</div>`;
+  } else {
+    const p = result.params;
+    container.innerHTML = `
+      <div class="result-title">${result.title}</div>
+      <div class="result-body">${result.body}</div>
+      <div class="result-log">${result.log}</div>
+      <div class="params">
+        ${['clarity','noise','tension','flow','circle_completion'].map(key => `
+          <div class="param-item">
+            <span class="param-name">${key.replace('_',' ')}</span>
+            <div class="param-bar">
+              <div class="param-fill" style="height: ${p[key]}%"></div>
+            </div>
+            <span class="param-value">${p[key]}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="image-prompt">
+        <span class="image-prompt-label">IMAGE PROMPT</span>
+        <div class="image-prompt-text" id="promptText">${result.image_prompt}</div>
+        <button class="copy-btn" onclick="copyPrompt()">コピー</button>
+      </div>
+    `;
+  }
+
+  const resultEl = document.getElementById('result');
+  resultEl.style.display = 'block';
+  setTimeout(() => resultEl.classList.add('show'), 50);
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyPrompt() {
+  const text = document.getElementById('promptText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'コピーしました';
+    setTimeout(() => btn.textContent = 'コピー', 2000);
+  });
+}
+
+function retry() {
+  document.getElementById('result').classList.remove('show');
+  setTimeout(() => {
+    document.getElementById('result').style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 800);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+</script>
+
+</body>
+</html>
