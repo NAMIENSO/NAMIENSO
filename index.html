@@ -657,7 +657,7 @@ function renderResult(result) {
       <div class="image-prompt">
         <span class="image-prompt-label">IMAGE PROMPT</span>
         <div class="image-prompt-text" id="promptText">${result.image_prompt}</div>
-        <button class="copy-btn" onclick="copyPrompt()">コピー</button>
+        <button class="copy-btn" onclick="copyAndOpen()">コピーしてGeminiで生成</button>
       </div>
     `;
   }
@@ -677,6 +677,14 @@ function copyPrompt() {
   });
 }
 
+function copyAndOpen() {
+  const text = document.getElementById('promptText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    window.open('https://aistudio.google.com/generate-images', '_blank');
+  });
+}
+  
+  
 function retry() {
   document.getElementById('result').classList.remove('show');
   setTimeout(() => {
