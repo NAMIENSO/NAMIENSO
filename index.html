@@ -619,7 +619,7 @@ const naturalData = [
   weather ? `天候：${weather}` : '',
   temperature ? `気温：${temperature}℃` : '',
   windspeed ? `風速：${windspeed}m/s` : '',
-].filter(Boolean).join('　');
+].filter(Boolean).join(' ');
 
 const userInput = `${naturalData ? naturalData + '\n' : ''}今日あったこと：${event || '（未入力）'}\n今の気分：${mood || '（未入力）'}\n頭の中のテーマ：${theme || '（なし）'}`;
 
