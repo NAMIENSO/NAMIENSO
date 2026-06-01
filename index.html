@@ -630,7 +630,7 @@ const userInput = `${naturalData ? naturalData + '\n' : ''}今日あったこと
 
   try {
    // 環境変数からAPIキーを取得
-　　const keyRes = await fetch('/api/key');
+ const keyRes = await fetch('/api/key');
 const keyData = await keyRes.json();
 const apiKey = keyData.key;
 
@@ -658,10 +658,10 @@ const response = await fetch(
     if (!text) throw new Error('応答が空でした');
     console.log('API response:', text);
 
-　　const stripped = text.replace(/```json/g, '').replace(/```/g, '').trim();
-　　const jsonMatch = stripped.match(/\{[\s\S]*\}/);
-　　if (!jsonMatch) throw new Error('JSONが見つかりませんでした');
-　　const parsed = JSON.parse(jsonMatch[0]);
+ const stripped = text.replace(/```json/g, '').replace(/```/g, '').trim();
+ const jsonMatch = stripped.match(/\{[\s\S]*\}/);
+ if (!jsonMatch) throw new Error('JSONが見つかりませんでした');
+ const parsed = JSON.parse(jsonMatch[0]);
 
     renderResult(parsed);
 
