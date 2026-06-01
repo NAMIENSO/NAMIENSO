@@ -211,6 +211,9 @@
     <button class="generate-btn" id="generateBtn" onclick="generate()">
       今日の波円相を観測する
     </button>
+
+    <button class="retry-btn" style="margin-top: 8px;" onclick="clearInputs()">入力をクリア</button>
+    
     <div class="error" id="errorMsg"></div>
   </div>
 
@@ -435,6 +438,17 @@ function showError(msg) {
   var el = document.getElementById('errorMsg');
   el.textContent = msg;
   el.classList.add('show');
+}
+  
+  function clearInputs() {
+  document.getElementById('event').value = '';
+  document.getElementById('mood').value = '';
+  document.getElementById('theme').value = '';
+  document.getElementById('date').value = '';
+  document.getElementById('tide').value = '';
+  document.getElementById('weather').value = '';
+  document.getElementById('temperature').value = '';
+  document.getElementById('windspeed').value = '';
 }
 </script>
 </body>
