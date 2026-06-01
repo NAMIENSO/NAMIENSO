@@ -354,7 +354,7 @@ async function generate() {
               parts: [{ text: SYSTEM_PROMPT + '\n\n' + userInput }]
             }
           ],
-          generationConfig: { temperature: 0.8, maxOutputTokens: 2000 }
+          generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
         })
       }
     );
