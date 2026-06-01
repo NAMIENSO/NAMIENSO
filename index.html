@@ -365,6 +365,8 @@ async function generate() {
     const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
     if (!text) throw new Error('応答が空でした');
 
+    console.log('API response:', text);
+    
     const stripped = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const jsonMatch = stripped.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('JSONが見つかりませんでした');
