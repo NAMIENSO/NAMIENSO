@@ -5,189 +5,416 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>波円相 | NAMI ENSO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400&family=Zen+Antique&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ink: #1a1a2e;
-    --paper: #f5f2eb;
-    --water: #2a4a6b;
-    --mist: #8fa8c0;
-    --enso: #1a3a5c;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Noto Serif JP', serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 800px;
-    height: 800px;
-    border-radius: 50%;
-    border: 1px solid rgba(42, 74, 107, 0.06);
-    pointer-events: none;
-    animation: ripple 8s ease-in-out infinite;
-  }
-  body::after {
-    content: '';
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    border-radius: 50%;
-    border: 1px solid rgba(42, 74, 107, 0.04);
-    pointer-events: none;
-    animation: ripple 8s ease-in-out infinite 2s;
-  }
-  @keyframes ripple {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-    50% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
-  }
-  .container {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 60px 24px 80px;
-    position: relative;
-    z-index: 1;
-  }
-  header { text-align: center; margin-bottom: 64px; }
-  .enso-mark { width: 80px; height: 80px; margin: 0 auto 24px; opacity: 0; animation: fadeIn 1.2s ease forwards 0.3s; }
-  .enso-mark svg { width: 100%; height: 100%; }
-  h1 {
-    font-family: 'Zen Antique', serif;
-    font-size: clamp(28px, 5vw, 36px);
-    letter-spacing: 0.2em;
-    color: var(--enso);
-    font-weight: 400;
-    opacity: 0;
-    animation: fadeIn 1.2s ease forwards 0.5s;
-  }
-  .tagline { margin-top: 12px; font-size: 13px; letter-spacing: 0.15em; color: var(--mist); opacity: 0; animation: fadeIn 1.2s ease forwards 0.8s; }
-  @keyframes fadeIn {
-    to { opacity: 1; transform: translateY(0); }
-    from { opacity: 0; transform: translateY(8px); }
-  }
-  .input-section { opacity: 0; animation: fadeIn 1.2s ease forwards 1s; }
-  .input-label { font-size: 12px; letter-spacing: 0.2em; color: var(--mist); margin-bottom: 16px; display: block; }
-  .input-grid { display: grid; gap: 16px; margin-bottom: 32px; }
-  .input-group { display: flex; flex-direction: column; gap: 8px; }
-  .input-group label { font-size: 12px; letter-spacing: 0.15em; color: var(--water); }
-  textarea, input[type="text"], input[type="number"], input[type="date"], select {
-    width: 100%;
-    background: rgba(255,255,255,0.6);
-    border: 1px solid rgba(42, 74, 107, 0.2);
-    border-radius: 4px;
-    padding: 12px 16px;
-    font-family: 'Noto Serif JP', serif;
-    font-size: 14px;
-    color: var(--ink);
-    transition: border-color 0.3s, background 0.3s;
-    outline: none;
-  }
-  textarea:focus, input:focus, select:focus {
-    border-color: rgba(42, 74, 107, 0.5);
-    background: rgba(255,255,255,0.9);
-  }
-  textarea { height: 80px; line-height: 1.7; resize: none; }
-  .generate-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--enso);
-    color: var(--paper);
-    border: none;
-    border-radius: 4px;
-    font-family: 'Zen Antique', serif;
-    font-size: 15px;
-    letter-spacing: 0.3em;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-  .generate-btn:hover { background: var(--water); }
-  .generate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-  .loading { display: none; text-align: center; padding: 48px 0; }
-  .loading.show { display: block; }
-  .loading-circle { width: 60px; height: 60px; margin: 0 auto 24px; }
-  .loading-circle svg { animation: rotate 3s linear infinite; }
-  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  .loading-text { font-size: 12px; letter-spacing: 0.3em; color: var(--mist); animation: pulse 2s ease-in-out infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-  .result { display: none; margin-top: 48px; opacity: 0; transition: opacity 0.8s; }
-  .result.show { display: block; opacity: 1; }
-  .result-divider { width: 40px; height: 1px; background: var(--mist); margin: 0 auto 40px; }
-  .result-title { font-family: 'Zen Antique', serif; font-size: 22px; letter-spacing: 0.15em; color: var(--enso); text-align: center; margin-bottom: 28px; line-height: 1.6; }
-  .result-body { font-size: 15px; line-height: 2; color: var(--ink); white-space: pre-wrap; margin-bottom: 28px; padding: 0 8px; }
-  .result-log { font-size: 12px; letter-spacing: 0.2em; color: var(--mist); text-align: center; padding: 16px; border-top: 1px solid rgba(42, 74, 107, 0.1); border-bottom: 1px solid rgba(42, 74, 107, 0.1); margin-bottom: 32px; }
-  .params { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 40px; }
-  .param-item { text-align: center; }
-  .param-name { font-size: 9px; letter-spacing: 0.1em; color: var(--mist); margin-bottom: 6px; display: block; }
-  .param-bar { height: 40px; background: rgba(42, 74, 107, 0.08); border-radius: 2px; position: relative; overflow: hidden; }
-  .param-fill { position: absolute; bottom: 0; left: 0; right: 0; background: var(--water); opacity: 0.6; transition: height 1s ease; }
-  .param-value { font-size: 10px; color: var(--water); margin-top: 4px; display: block; }
-  .image-prompt { background: rgba(42, 74, 107, 0.05); border-left: 2px solid var(--mist); padding: 16px 20px; margin-bottom: 32px; }
-  .image-prompt-label { font-size: 10px; letter-spacing: 0.2em; color: var(--mist); margin-bottom: 8px; display: block; }
-  .image-prompt-text { font-size: 12px; color: var(--water); line-height: 1.7; word-break: break-all; }
-  .copy-btn { margin-top: 8px; font-size: 11px; letter-spacing: 0.1em; color: var(--mist); background: none; border: 1px solid rgba(42,74,107,0.2); padding: 4px 12px; border-radius: 2px; cursor: pointer; transition: all 0.2s; }
-  .copy-btn:hover { color: var(--water); border-color: var(--water); }
-  .retry-btn { width: 100%; padding: 12px; background: transparent; color: var(--mist); border: 1px solid rgba(42, 74, 107, 0.2); border-radius: 4px; font-family: 'Noto Serif JP', serif; font-size: 13px; letter-spacing: 0.2em; cursor: pointer; transition: all 0.3s; }
-  .retry-btn:hover { color: var(--water); border-color: var(--water); }
-  footer { text-align: center; margin-top: 80px; padding-top: 32px; border-top: 1px solid rgba(42, 74, 107, 0.1); }
-  footer p { font-size: 11px; letter-spacing: 0.15em; color: var(--mist); line-height: 2; }
-  .zen0 { font-family: monospace; font-size: 12px; color: #8b0000; text-align: center; padding: 24px; border: 1px solid rgba(139, 0, 0, 0.2); letter-spacing: 0.1em; line-height: 2; }
-  .error { display: none; padding: 16px; background: rgba(139, 0, 0, 0.05); border: 1px solid rgba(139, 0, 0, 0.2); border-radius: 4px; font-size: 13px; color: #8b0000; text-align: center; margin-top: 24px; }
-  .error.show { display: block; }
-  @media (max-width: 480px) { .params { grid-template-columns: repeat(5, 1fr); gap: 4px; } .param-name { font-size: 8px; } }
+:root {
+  --ink: #0e0e12;
+  --paper: #f4f1ea;
+  --deep: #0a1628;
+  --water: #1a3a5c;
+  --mist: #7a8fa3;
+  --tide: #2a5a8a;
+  --accent: #c8a87a;
+  --zen0: #6b0000;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Noto Serif JP', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── 背景の静水紋 ── */
+.bg-ripple {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+}
+.bg-ripple svg { width: 100%; height: 100%; opacity: 0.04; }
+
+/* ── メインコンテナ ── */
+.stage {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 20px;
+}
+
+/* ── ヘッダー ── */
+.header {
+  text-align: center;
+  padding: 72px 0 56px;
+  opacity: 0; animation: arise 1.4s ease forwards 0.2s;
+}
+
+.header-enso {
+  width: 64px; height: 64px; margin: 0 auto 28px;
+}
+.header-enso svg { width: 100%; height: 100%; }
+
+.header h1 {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 32px; font-weight: 500;
+  letter-spacing: 0.35em;
+  color: var(--water);
+}
+
+.header-sub {
+  margin-top: 14px;
+  font-size: 11px; letter-spacing: 0.25em;
+  color: var(--mist);
+  font-weight: 200;
+}
+
+/* ── 入力ゾーン ── */
+.observe-zone {
+  width: 100%; max-width: 600px;
+  opacity: 0; animation: arise 1.4s ease forwards 0.6s;
+}
+
+.zone-label {
+  font-size: 10px; letter-spacing: 0.3em;
+  color: var(--mist); text-align: center;
+  margin-bottom: 32px;
+}
+.zone-label::before, .zone-label::after {
+  content: '──';
+  margin: 0 12px;
+  opacity: 0.4;
+}
+
+.field-group { margin-bottom: 20px; }
+
+.field-group label {
+  display: block;
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--mist); margin-bottom: 8px;
+}
+
+textarea, input[type="text"], input[type="number"], input[type="date"], select {
+  width: 100%;
+  background: rgba(255,255,255,0.5);
+  border: none;
+  border-bottom: 1px solid rgba(26,58,92,0.2);
+  padding: 10px 0;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px; font-weight: 300;
+  color: var(--ink);
+  transition: border-color 0.4s;
+  outline: none;
+  border-radius: 0;
+  -webkit-appearance: none;
+}
+textarea { height: 72px; resize: none; line-height: 1.8; }
+textarea:focus, input:focus, select:focus {
+  border-bottom-color: rgba(26,58,92,0.6);
+  background: transparent;
+}
+
+.natural-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0 24px;
+}
+.natural-row-wide {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 24px;
+  margin-top: 20px;
+}
+
+/* ── 観測ボタン ── */
+.btn-observe {
+  display: block; width: 100%;
+  margin: 48px 0 0;
+  padding: 18px;
+  background: var(--water);
+  color: var(--paper);
+  border: none; cursor: pointer;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px; letter-spacing: 0.4em;
+  transition: background 0.3s, letter-spacing 0.4s;
+}
+.btn-observe:hover { background: var(--tide); letter-spacing: 0.5em; }
+.btn-observe:disabled { opacity: 0.5; cursor: not-allowed; letter-spacing: 0.4em; }
+
+.btn-clear {
+  display: block; width: 100%; margin-top: 12px;
+  padding: 10px; background: transparent;
+  color: var(--mist); border: none; cursor: pointer;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 11px; letter-spacing: 0.2em;
+  transition: color 0.3s;
+}
+.btn-clear:hover { color: var(--water); }
+
+/* ── ローディング ── */
+.loading-screen {
+  display: none; width: 100%; max-width: 600px;
+  text-align: center; padding: 80px 0;
+}
+.loading-screen.show { display: block; }
+.loading-enso { width: 80px; height: 80px; margin: 0 auto 32px; }
+.loading-enso svg { animation: slowspin 4s linear infinite; }
+@keyframes slowspin { to { transform: rotate(360deg); } }
+.loading-words {
+  font-size: 11px; letter-spacing: 0.3em;
+  color: var(--mist); animation: breathe 2.5s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+/* ── 結果画面 ── */
+.result-screen {
+  display: none; width: 100%; max-width: 600px;
+  padding: 0 0 100px;
+}
+.result-screen.show { display: block; }
+
+.result-divider {
+  width: 1px; height: 60px;
+  background: linear-gradient(to bottom, transparent, var(--mist), transparent);
+  margin: 0 auto 48px;
+}
+
+/* 生成円画像エリア */
+.enso-display {
+  width: 100%; aspect-ratio: 1;
+  max-width: 500px; margin: 0 auto 48px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.enso-display img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  opacity: 0; transition: opacity 1.2s ease;
+}
+.enso-display img.loaded { opacity: 1; }
+.enso-display .generating-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; letter-spacing: 0.3em; color: var(--mist);
+}
+
+/* フェーズバッジ */
+.phase-badge {
+  text-align: center; margin-bottom: 32px;
+}
+.phase-name {
+  display: inline-block;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px; letter-spacing: 0.3em;
+  color: var(--water);
+  border-bottom: 1px solid rgba(26,58,92,0.2);
+  padding-bottom: 8px;
+}
+
+/* 観測ログ */
+.obs-log {
+  font-size: 11px; letter-spacing: 0.2em;
+  color: var(--mist); text-align: center;
+  margin-bottom: 40px; line-height: 2;
+}
+
+/* 詩的本文 */
+.result-body {
+  font-size: 15px; line-height: 2.4; font-weight: 300;
+  color: var(--ink); white-space: pre-wrap;
+  margin-bottom: 48px;
+  padding: 0 8px;
+  border-left: 1px solid rgba(26,58,92,0.12);
+  padding-left: 20px;
+}
+
+/* ZENパラメータ */
+.params-area { margin-bottom: 48px; }
+.params-title {
+  font-size: 9px; letter-spacing: 0.3em;
+  color: var(--mist); text-align: center; margin-bottom: 20px;
+}
+.params-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+}
+.param-item { text-align: center; }
+.param-key {
+  font-size: 8px; letter-spacing: 0.1em;
+  color: var(--mist); display: block; margin-bottom: 8px;
+}
+.param-track {
+  height: 48px; background: rgba(26,58,92,0.06);
+  position: relative; overflow: hidden;
+}
+.param-fill {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: var(--water); opacity: 0.5;
+  transition: height 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.param-val {
+  font-size: 10px; color: var(--water);
+  display: block; margin-top: 6px;
+}
+
+/* アクションエリア */
+.actions {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 48px;
+}
+.btn-primary {
+  padding: 16px; background: var(--water); color: var(--paper);
+  border: none; cursor: pointer;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px; letter-spacing: 0.3em;
+  transition: background 0.3s;
+}
+.btn-primary:hover { background: var(--tide); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-secondary {
+  padding: 14px; background: transparent;
+  color: var(--mist); border: 1px solid rgba(26,58,92,0.2);
+  cursor: pointer;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px; letter-spacing: 0.2em;
+  transition: all 0.3s;
+}
+.btn-secondary:hover { color: var(--water); border-color: rgba(26,58,92,0.4); }
+
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* X共有プレビュー */
+.share-text-area {
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(26,58,92,0.12);
+  padding: 16px 20px;
+  font-size: 12px; line-height: 2; color: var(--water);
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  display: none;
+}
+
+/* image prompt（折りたたみ） */
+.prompt-detail {
+  border-top: 1px solid rgba(26,58,92,0.08);
+  padding-top: 24px; margin-top: 8px;
+}
+.prompt-toggle {
+  font-size: 10px; letter-spacing: 0.2em; color: var(--mist);
+  background: none; border: none; cursor: pointer;
+  display: block; width: 100%; text-align: center; padding: 8px;
+  transition: color 0.3s;
+}
+.prompt-toggle:hover { color: var(--water); }
+.prompt-content {
+  display: none; font-size: 11px; color: var(--mist);
+  line-height: 1.8; word-break: break-all;
+  padding: 16px 0; border-top: 1px solid rgba(26,58,92,0.06);
+}
+
+/* ZEN0 */
+.zen0-display {
+  font-family: 'Courier New', monospace;
+  font-size: 12px; color: var(--zen0);
+  text-align: center; padding: 40px;
+  border: 1px solid rgba(107,0,0,0.15);
+  line-height: 2; letter-spacing: 0.1em;
+}
+
+/* エラー */
+.error-msg {
+  display: none; padding: 16px; text-align: center;
+  font-size: 12px; letter-spacing: 0.15em;
+  color: var(--zen0); border: 1px solid rgba(107,0,0,0.15);
+  margin-top: 24px;
+}
+.error-msg.show { display: block; }
+
+/* フッター */
+.site-footer {
+  text-align: center; padding: 40px 0 60px;
+  opacity: 0; animation: arise 1.4s ease forwards 1.2s;
+}
+.site-footer p {
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--mist); line-height: 2.4;
+}
+.site-footer a {
+  color: var(--mist); text-decoration: none;
+  border-bottom: 1px solid rgba(122,143,163,0.3);
+  transition: color 0.3s;
+}
+.site-footer a:hover { color: var(--water); }
+
+@keyframes arise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .natural-row { grid-template-columns: 1fr 1fr; }
+  .natural-row-wide { grid-template-columns: 1fr; }
+  .params-grid { gap: 6px; }
+  .param-key { font-size: 7px; }
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div class="enso-mark">
+
+<div class="bg-ripple">
+  <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="600" cy="400" r="300" fill="none" stroke="#1a3a5c" stroke-width="1">
+      <animate attributeName="r" values="300;320;300" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="600" cy="400" r="200" fill="none" stroke="#1a3a5c" stroke-width="0.5">
+      <animate attributeName="r" values="200;215;200" dur="7s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="600" cy="400" r="420" fill="none" stroke="#1a3a5c" stroke-width="0.5">
+      <animate attributeName="r" values="420;440;420" dur="13s" repeatCount="indefinite"/>
+    </circle>
+  </svg>
+</div>
+
+<div class="stage">
+
+  <!-- ヘッダー -->
+  <header class="header">
+    <div class="header-enso">
       <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M50 10 C72 10, 90 28, 90 50 C90 72, 72 90, 50 90 C28 90, 10 72, 10 50 C10 35, 18 22, 30 15"
-          stroke="#1a3a5c" stroke-width="5" stroke-linecap="round" fill="none"
-          stroke-dasharray="240" stroke-dashoffset="240">
-          <animate attributeName="stroke-dashoffset" from="240" to="0" dur="2s" fill="freeze" begin="0.5s"/>
+        <path d="M50 12 C74 12, 90 30, 90 50 C90 72, 72 90, 50 90 C28 90, 10 72, 10 50 C10 33, 20 18, 34 13"
+          stroke="#1a3a5c" stroke-width="4.5" stroke-linecap="round" fill="none"
+          stroke-dasharray="260" stroke-dashoffset="260">
+          <animate attributeName="stroke-dashoffset" from="260" to="0" dur="2.2s" fill="freeze" begin="0.4s"/>
         </path>
       </svg>
     </div>
     <h1>波円相</h1>
-    <p class="tagline">世界と「わたし」をつなぐ窓</p>
+    <p class="header-sub">N A M I &nbsp; E N S O &nbsp;&nbsp;—&nbsp;&nbsp; ENGINE v1.3</p>
   </header>
 
-  <div class="input-section">
-    <span class="input-label">── 今日の材料を、言葉にしてください</span>
-    <div class="input-grid">
-      <div class="input-group">
-        <label>今日あったこと</label>
-        <textarea id="event" placeholder="キーワードだけでも可"></textarea>
-      </div>
-      <div class="input-group">
-        <label>今の気分</label>
-        <textarea id="mood" placeholder="一言でも"></textarea>
-      </div>
-      <div class="input-group">
-        <label>頭の中のテーマ（任意）</label>
-        <input type="text" id="theme" placeholder="気になっていること、考えていること">
-      </div>
-      <div class="input-group">
-        <label>日付（任意）</label>
-        <input type="date" id="date">
-      </div>
-      <div class="input-group">
+  <!-- 入力ゾーン -->
+  <div class="observe-zone" id="inputZone">
+    <p class="zone-label">今日の材料を、言葉にしてください</p>
+
+    <div class="field-group">
+      <label>今日あったこと</label>
+      <textarea id="event" placeholder="断片でも可"></textarea>
+    </div>
+
+    <div class="field-group">
+      <label>今の気分</label>
+      <textarea id="mood" placeholder="一語でも"></textarea>
+    </div>
+
+    <div class="field-group">
+      <label>頭の中のテーマ（任意）</label>
+      <input type="text" id="theme" placeholder="気になっていること">
+    </div>
+
+    <div class="natural-row">
+      <div class="field-group">
         <label>潮汐（任意）</label>
         <select id="tide">
-          <option value="">選択しない</option>
+          <option value="">—</option>
           <option value="大潮">大潮</option>
           <option value="中潮">中潮</option>
           <option value="小潮">小潮</option>
@@ -195,49 +422,66 @@
           <option value="若潮">若潮</option>
         </select>
       </div>
-      <div class="input-group">
+      <div class="field-group">
         <label>天候（任意）</label>
-        <input type="text" id="weather" placeholder="晴・曇・雨・荒天など">
+        <input type="text" id="weather" placeholder="晴・曇・雨…">
       </div>
-      <div class="input-group">
+      <div class="field-group">
+        <label>日付（任意）</label>
+        <input type="date" id="date">
+      </div>
+    </div>
+
+    <div class="natural-row-wide">
+      <div class="field-group">
         <label>気温℃（任意）</label>
         <input type="number" id="temperature" placeholder="例：23.4" step="0.1">
       </div>
-      <div class="input-group">
+      <div class="field-group">
         <label>風速m/s（任意）</label>
         <input type="number" id="windspeed" placeholder="例：2.5" step="0.1">
       </div>
     </div>
-    <button class="generate-btn" id="generateBtn" onclick="generate()">
+
+    <button class="btn-observe" id="observeBtn" onclick="startObservation()">
       今日の波円相を観測する
     </button>
+    <button class="btn-clear" onclick="clearAll()">入力をクリア</button>
 
-    <button class="retry-btn" style="margin-top: 8px;" onclick="clearInputs()">入力をクリア</button>
-    
-    <div class="error" id="errorMsg"></div>
+    <div class="error-msg" id="errorMsg"></div>
   </div>
 
-  <div class="loading" id="loading">
-    <div class="loading-circle">
-      <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M30 5 C44 5, 55 16, 55 30 C55 44, 44 55, 30 55 C16 55, 5 44, 5 30 C5 20, 10 12, 18 8"
-          stroke="#2a4a6b" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
-        <path d="M30 5 C44 5, 55 16, 55 30"
-          stroke="#2a4a6b" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- ローディング -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-enso">
+      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M40 8 C58 8, 72 22, 72 40 C72 58, 58 72, 40 72 C22 72, 8 58, 8 40 C8 26, 15 14, 26 9"
+          stroke="#1a3a5c" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.35"/>
+        <path d="M40 8 C58 8, 72 22, 72 40 C72 50, 67 58, 59 64"
+          stroke="#1a3a5c" stroke-width="3" stroke-linecap="round" fill="none"/>
       </svg>
     </div>
-    <p class="loading-text">生成中 ──────</p>
+    <p class="loading-words" id="loadingWords">観測中</p>
   </div>
 
-  <div class="result" id="result">
+  <!-- 結果画面 -->
+  <div class="result-screen" id="resultScreen">
     <div class="result-divider"></div>
     <div id="resultContent"></div>
-    <button class="retry-btn" onclick="retry()">もう一度観測する</button>
+    <div style="margin-top:48px;">
+      <button class="btn-secondary" onclick="resetToInput()" style="width:100%;">もう一度観測する</button>
+    </div>
   </div>
 
-  <footer>
-    <p>NAMI ENSO ENGINE v1.3<br>世界は線でできている。円は揺れる線の軌跡。</p>
+  <!-- フッター -->
+  <footer class="site-footer">
+    <p>
+      NAMI ENSO ENGINE v1.3<br>
+      世界は線でできている。円は揺れる線の軌跡。<br>
+      <a href="https://note.com/nami_enso" target="_blank">小説「波円相」を読む</a>
+    </p>
   </footer>
+
 </div>
 
 <script>
@@ -247,6 +491,7 @@ const SYSTEM_PROMPT = `あなたは「波円相（はえんそう）」生成エ
 世界も心も「線」でできている。その線が揺れてできる円が、その日の波円相。
 正しさよりも「その瞬間の揺れ」を優先する。
 波円相は「記録」ではなく「観測」である。感情を説明するのではなく、その瞬間の揺れをスナップショットとして残す。
+AIは励まさず、解釈せず、ただ「見つめる」ことを徹底する。
 
 【パラメータ定義（0〜100）】
 - clarity（澄み）: ポジティブ・整理 → 高 / 混乱・疲労 → 低
@@ -274,10 +519,14 @@ tension 高 → 張る・尖る・きしむ・糸が張る・空気が固まる
 flow 高 → 流れる・ほどける・波がほどける・線が泳ぐ・風が通る
 circle_completion 低 → 円にならない・途切れた輪・開いたまま
 
-【画像プロンプト辞書】
-色: clarity高→blue/white/transparent, clarity低→gray/muddy, noise高→red/magenta/glitch, tension高→sharp black/deep blue, flow高→teal/soft gradient, circle低→broken/incomplete
-線質: clarity高→smooth uniform fine ink, clarity低→blurred smudged, noise高→jitter distortion glitch, tension高→sharp angular, flow高→wave-like curves, circle低→interrupted unfinished
-余白: clarity高→wide negative space, noise高→dense fragmented, tension高→tight compressed, flow高→open airy, circle低→asymmetrical broken
+【画像プロンプト生成指示】
+Gemini Imagen3で生成する。以下の構造で英語プロンプトを組み立てること。
+- スタイル: "enso circle, ink brush on Japanese washi paper, minimalist zen painting"
+- 線質: clarity高→"smooth flowing brushstroke", clarity低→"blurred diffused stroke", noise高→"textured scattered ink", tension高→"sharp angular stroke", flow高→"fluid wave-like curves"
+- 色調: clarity高→"deep indigo and white", clarity低→"gray misty tones", noise高→"dark ink with red-brown splatter", tension高→"sharp black deep navy", flow高→"teal soft gradient wash"
+- 余白: circle_completion高→"closed circle centered, generous negative space", circle_completion低→"incomplete open circle, asymmetric composition"
+- フェーズ追加指示: 嵐の海→"storm energy swirling brushstroke", 大潮→"bold powerful brushstroke", 蒼穹→"clear sky luminous ink", 天地人→"calm balanced centered circle"
+- 末尾必須: "single enso, no text, no border, high resolution, white background"
 
 【ZEN0発火条件】
 入力が完全に無意味、または矛盾した指示、または全パラメータがゼロの場合のみ発火。
@@ -285,6 +534,9 @@ circle_completion 低 → 円にならない・途切れた輪・開いたまま
 【出力形式（必ずこのJSONで返すこと）】
 {
   "zen0": false,
+  "phase": "フェーズ名（嵐の海/大潮/蒼穹/天地人のいずれか）",
+  "ushio": 数値,
+  "gyoun": 数値,
   "params": {
     "clarity": 数値,
     "noise": 数値,
@@ -294,8 +546,8 @@ circle_completion 低 → 円にならない・途切れた輪・開いたまま
   },
   "title": "タイトル（1行）",
   "body": "本文（3〜7行、改行あり）",
-  "log": "一行ログ",
-  "image_prompt": "abstract enso circle, {line_quality}, {color_palette}, {noise_level} noise, {circle_structure}, {flow_expression} wave patterns, {space_expression}, minimalist zen composition, high-resolution, clean background"
+  "log": "一行ログ（英数字混じりの詩的テキスト）",
+  "image_prompt": "上記指示に従った英語プロンプト"
 }
 
 ZEN0発火時のみ：
@@ -306,16 +558,35 @@ ZEN0発火時のみ：
 
 JSONのみを返すこと。説明文不要。`;
 
-async function generate() {
+const LOADING_WORDS = [
+  '観測中', '線が揺れている', '円を読んでいる', '潮を感じている', '静かに見つめている'
+];
+
+let loadingInterval = null;
+let currentResult = null;
+
+function startLoadingWords() {
+  let i = 0;
+  document.getElementById('loadingWords').textContent = LOADING_WORDS[0];
+  loadingInterval = setInterval(() => {
+    i = (i + 1) % LOADING_WORDS.length;
+    document.getElementById('loadingWords').textContent = LOADING_WORDS[i];
+  }, 2200);
+}
+function stopLoadingWords() {
+  if (loadingInterval) clearInterval(loadingInterval);
+}
+
+async function startObservation() {
   const event = document.getElementById('event').value.trim();
   const mood = document.getElementById('mood').value.trim();
-  const theme = document.getElementById('theme').value.trim();
 
   if (!event && !mood) {
     showError('今日あったことか、今の気分を入力してください。');
     return;
   }
 
+  const theme = document.getElementById('theme').value.trim();
   const date = document.getElementById('date').value;
   const tide = document.getElementById('tide').value;
   const weather = document.getElementById('weather').value.trim();
@@ -335,10 +606,11 @@ async function generate() {
     '今の気分：' + (mood || '（未入力）') + '\n' +
     '頭の中のテーマ：' + (theme || '（なし）');
 
-  document.getElementById('generateBtn').disabled = true;
+  document.getElementById('observeBtn').disabled = true;
   document.getElementById('errorMsg').classList.remove('show');
-  document.getElementById('result').classList.remove('show');
-  document.getElementById('loading').classList.add('show');
+  document.getElementById('inputZone').style.display = 'none';
+  document.getElementById('loadingScreen').classList.add('show');
+  startLoadingWords();
 
   try {
     const keyRes = await fetch('/api/key');
@@ -351,87 +623,112 @@ async function generate() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [
-            {
-              role: 'user',
-              parts: [{ text: SYSTEM_PROMPT + '\n\n' + userInput }]
-            }
-          ],
+          contents: [{ role: 'user', parts: [{ text: SYSTEM_PROMPT + '\n\n' + userInput }] }],
           generationConfig: { temperature: 0.8, maxOutputTokens: 8192 }
         })
       }
     );
 
-    if (!response.ok) throw new Error('API error: ' + response.status);
+    if (!response.ok) throw new Error('Gemini API error: ' + response.status);
 
     const data = await response.json();
-    const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new Error('応答が空でした');
 
-    console.log('API response:', JSON.stringify(text));
-    
     const stripped = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const jsonMatch = stripped.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('JSONが見つかりませんでした');
     const parsed = JSON.parse(jsonMatch[0]);
 
+    currentResult = parsed;
+    stopLoadingWords();
+    document.getElementById('loadingScreen').classList.remove('show');
     renderResult(parsed);
 
   } catch (err) {
-    showError('生成中にエラーが発生しました。もう一度お試しください。');
+    stopLoadingWords();
+    document.getElementById('loadingScreen').classList.remove('show');
+    document.getElementById('inputZone').style.display = 'block';
+    document.getElementById('observeBtn').disabled = false;
+    showError('観測中にエラーが発生しました。もう一度お試しください。');
     console.error(err);
-  } finally {
-    document.getElementById('loading').classList.remove('show');
-    document.getElementById('generateBtn').disabled = false;
   }
 }
 
 function renderResult(result) {
-  var container = document.getElementById('resultContent');
+  const container = document.getElementById('resultContent');
 
   if (result.zen0) {
-    container.innerHTML = '<div class="zen0">' + result.log.replace(/\n/g, '<br>') + '</div>';
+    container.innerHTML = '<div class="zen0-display">' + result.log.replace(/\n/g, '<br>') + '</div>';
   } else {
-    var p = result.params;
-    var paramsHtml = ['clarity','noise','tension','flow','circle_completion'].map(function(key) {
-      return '<div class="param-item">' +
-        '<span class="param-name">' + key.replace('_',' ') + '</span>' +
-        '<div class="param-bar"><div class="param-fill" style="height: ' + p[key] + '%"></div></div>' +
-        '<span class="param-value">' + p[key] + '</span>' +
-        '</div>';
+    const p = result.params;
+    const paramsHtml = ['clarity','noise','tension','flow','circle_completion'].map(key => {
+      return `<div class="param-item">
+        <span class="param-key">${key.replace('_',' ')}</span>
+        <div class="param-track"><div class="param-fill" id="fill_${key}" style="height:0%"></div></div>
+        <span class="param-val">${p[key]}</span>
+      </div>`;
     }).join('');
-container.innerHTML =
-  '<div class="result-title">' + result.title + '</div>' +
-  '<div class="result-body">' + result.body + '</div>' +
-  '<div class="result-log">' + result.log + '</div>' +
-  '<div class="params">' + paramsHtml + '</div>' +
-  '<div class="image-prompt">' +
-    '<span class="image-prompt-label">IMAGE PROMPT</span>' +
-    '<div class="image-prompt-text" id="promptText">' + result.image_prompt + '</div>' +
-    '<button class="copy-btn" onclick="copyAndOpen()">コピーしてGeminiで生成</button>' +
-    '<button class="copy-btn" id="imageGenBtn" onclick="generateImage()" style="margin-left:8px;">円を生成する</button>' +
-  '</div>' +
-  '<img id="generatedImage" style="display:none; width:100%; margin-top:16px; border-radius:4px;" />';
+
+    const shareText = `今日の波円相を観測しました。\n\nフェーズ：${result.phase}\n${result.log}\n\n#波円相 #NAMIENSO\nhttps://namienso.vercel.app`;
+
+    container.innerHTML = `
+      <div class="enso-display" id="ensoDisplay">
+        <div class="generating-placeholder" id="imgPlaceholder">円を生成中 ──────</div>
+        <img id="generatedImg" alt="今日の波円相" />
+      </div>
+
+      <div class="phase-badge">
+        <span class="phase-name">${result.phase}</span>
+        <p style="font-size:10px;letter-spacing:0.2em;color:var(--mist);margin-top:10px;">
+          USHIO ${result.ushio} &nbsp;·&nbsp; GYOUN ${result.gyoun}
+        </p>
+      </div>
+
+      <p class="obs-log">${result.log}</p>
+
+      <div class="result-body">${result.body}</div>
+
+      <div class="params-area">
+        <p class="params-title">ZEN PARAMETERS</p>
+        <div class="params-grid">${paramsHtml}</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="saveBtn" onclick="saveImage()">円をダウンロード</button>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="toggleShare()">Xでシェアする</button>
+          <button class="btn-secondary" onclick="openNote()">小説を読む</button>
+        </div>
+        <div class="share-text-area" id="shareArea">${shareText}</div>
+        <button class="btn-secondary" id="sharePostBtn" onclick="postToX()" style="display:none;">このテキストでポストする</button>
+      </div>
+
+      <div class="prompt-detail">
+        <button class="prompt-toggle" onclick="togglePrompt()">IMAGE PROMPT を表示</button>
+        <div class="prompt-content" id="promptContent">${result.image_prompt}</div>
+      </div>
+    `;
   }
 
-  var resultEl = document.getElementById('result');
-  resultEl.style.display = 'block';
-  setTimeout(function() { resultEl.classList.add('show'); }, 50);
-  resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('resultScreen').classList.add('show');
+  document.getElementById('resultScreen').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  if (!result.zen0) {
+    setTimeout(() => {
+      ['clarity','noise','tension','flow','circle_completion'].forEach(key => {
+        const el = document.getElementById('fill_' + key);
+        if (el) el.style.height = result.params[key] + '%';
+      });
+    }, 100);
+
+    generateImage(result.image_prompt);
+  }
 }
 
-function copyAndOpen() {
-  var text = document.getElementById('promptText').textContent;
-  navigator.clipboard.writeText(text).then(function() {
-    window.open('https://gemini.google.com/app', '_blank');
-  });
-}
-
-async function generateImage() {
-  var prompt = document.getElementById('promptText').textContent;
-  var btn = document.getElementById('imageGenBtn');
-  btn.textContent = '生成中...';
-  btn.disabled = true;
+async function generateImage(prompt) {
+  const placeholder = document.getElementById('imgPlaceholder');
+  const img = document.getElementById('generatedImg');
 
   try {
     const res = await fetch('/api/image', {
@@ -439,46 +736,85 @@ async function generateImage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: prompt })
     });
+
+    if (!res.ok) throw new Error('image API error: ' + res.status);
     const data = await res.json();
-    if (data.url) {
-      var img = document.getElementById('generatedImage');
-      img.src = data.url;
-      img.style.display = 'block';
+
+    if (data.url || data.b64) {
+      const src = data.b64 ? 'data:image/png;base64,' + data.b64 : data.url;
+      img.onload = () => {
+        img.classList.add('loaded');
+        if (placeholder) placeholder.style.display = 'none';
+      };
+      img.src = src;
     } else {
-      alert('画像生成に失敗しました');
+      if (placeholder) placeholder.textContent = '画像生成に失敗しました';
     }
   } catch (err) {
-    alert('エラーが発生しました');
-    console.error(err);
-  } finally {
-    btn.textContent = '円を生成する';
-    btn.disabled = false;
+    console.error('Image gen error:', err);
+    if (placeholder) placeholder.textContent = '画像生成に失敗しました';
   }
-}  
-  
-function retry() {
-  document.getElementById('result').classList.remove('show');
-  setTimeout(function() {
-    document.getElementById('result').style.display = 'none';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 800);
+}
+
+function saveImage() {
+  const img = document.getElementById('generatedImg');
+  if (!img || !img.src || img.src === window.location.href) {
+    alert('画像がまだ生成されていません');
+    return;
+  }
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = 'namienso_' + new Date().toISOString().slice(0,10) + '.png';
+  a.click();
+}
+
+function toggleShare() {
+  const area = document.getElementById('shareArea');
+  const btn = document.getElementById('sharePostBtn');
+  const isShow = area.style.display === 'block';
+  area.style.display = isShow ? 'none' : 'block';
+  btn.style.display = isShow ? 'none' : 'block';
+}
+
+function postToX() {
+  const text = document.getElementById('shareArea').textContent;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+}
+
+function openNote() {
+  window.open('https://note.com/nami_enso', '_blank');
+}
+
+function togglePrompt() {
+  const el = document.getElementById('promptContent');
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+
+function resetToInput() {
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('resultContent').innerHTML = '';
+  document.getElementById('inputZone').style.display = 'block';
+  document.getElementById('observeBtn').disabled = false;
+  currentResult = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    document.getElementById('resultScreen').style.display = '';
+  }, 600);
+}
+
+function clearAll() {
+  ['event','mood','theme','date','weather','temperature','windspeed'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('tide').value = '';
+  document.getElementById('errorMsg').classList.remove('show');
 }
 
 function showError(msg) {
-  var el = document.getElementById('errorMsg');
+  const el = document.getElementById('errorMsg');
   el.textContent = msg;
   el.classList.add('show');
-}
-  
-  function clearInputs() {
-  document.getElementById('event').value = '';
-  document.getElementById('mood').value = '';
-  document.getElementById('theme').value = '';
-  document.getElementById('date').value = '';
-  document.getElementById('tide').value = '';
-  document.getElementById('weather').value = '';
-  document.getElementById('temperature').value = '';
-  document.getElementById('windspeed').value = '';
 }
 </script>
 </body>
