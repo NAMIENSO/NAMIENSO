@@ -12,34 +12,35 @@ module.exports = async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          instances: [{ prompt: prompt }],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: '1:1'
-          }
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
         })
       }
     );
 
     const text = await response.text();
-    console.log('Imagen API status:', response.status);
-    console.log('Imagen API response:', text);
+    console.log('Gemini status:', response.status);
+    console.log('Gemini response:', text.slice(0, 500));
 
     if (!response.ok) {
-      return res.status(response.status).json({ error: 'Imagen API error', detail: text });
+      return res.status(response.status).json({ error: 'Gemini API error', detail: text });
     }
 
     const data = JSON.parse(text);
-    const b64 = data?.predictions?.[0]?.bytesBase64Encoded;
-    if (!b64) return res.status(500).json({ error: 'No image in response', raw: data });
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    const imagePart = parts.find(p => p.inlineData?.mimeType?.startsWith('image/'));
+
+    if (!imagePart) {
+      return res.status(500).json({ error: 'No image in response', raw: data });
+    }
 
     res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.status(200).json({ b64 });
+    return res.status(200).json({ b64: imagePart.inlineData.data });
 
   } catch (err) {
     console.error('Error:', err);
