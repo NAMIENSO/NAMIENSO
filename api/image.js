@@ -1,5 +1,5 @@
 // api/image.js
-// Imagen 4 (imagen-4.0-generate-001)
+import { GoogleGenAI } from "@google/genai";
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,32 +13,19 @@ export default async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY not set' });
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          instances: [{ prompt: prompt }],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: '1:1',
-            safetyFilterLevel: 'block_few',
-            personGeneration: 'dont_allow'
-          }
-        })
-      }
-    );
+    const ai = new GoogleGenAI({ apiKey });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Imagen4 error:', response.status, errText);
-      return res.status(response.status).json({ error: 'Imagen4 API error', detail: errText });
-    }
+    const response = await ai.models.generateImages({
+      model: 'imagen-4.0-generate-001',
+      prompt: prompt,
+      config: {
+        numberOfImages: 1,
+        aspectRatio: '1:1',
+      },
+    });
 
-    const data = await response.json();
-    const b64 = data?.predictions?.[0]?.bytesBase64Encoded;
-    if (!b64) return res.status(500).json({ error: 'No image in response', raw: data });
+    const b64 = response.generatedImages?.[0]?.image?.imageBytes;
+    if (!b64) return res.status(500).json({ error: 'No image in response' });
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     return res.status(200).json({ b64 });
