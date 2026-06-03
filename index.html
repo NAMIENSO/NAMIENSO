@@ -400,17 +400,18 @@ function renderResult(result) {
         '<span class="param-value">' + p[key] + '</span>' +
         '</div>';
     }).join('');
-
-    container.innerHTML =
-      '<div class="result-title">' + result.title + '</div>' +
-      '<div class="result-body">' + result.body + '</div>' +
-      '<div class="result-log">' + result.log + '</div>' +
-      '<div class="params">' + paramsHtml + '</div>' +
-      '<div class="image-prompt">' +
-        '<span class="image-prompt-label">IMAGE PROMPT</span>' +
-        '<div class="image-prompt-text" id="promptText">' + result.image_prompt + '</div>' +
-        '<button class="copy-btn" onclick="copyAndOpen()">コピーしてGeminiで生成</button>' +
-      '</div>';
+container.innerHTML =
+  '<div class="result-title">' + result.title + '</div>' +
+  '<div class="result-body">' + result.body + '</div>' +
+  '<div class="result-log">' + result.log + '</div>' +
+  '<div class="params">' + paramsHtml + '</div>' +
+  '<div class="image-prompt">' +
+    '<span class="image-prompt-label">IMAGE PROMPT</span>' +
+    '<div class="image-prompt-text" id="promptText">' + result.image_prompt + '</div>' +
+    '<button class="copy-btn" onclick="copyAndOpen()">コピーしてGeminiで生成</button>' +
+    '<button class="copy-btn" id="imageGenBtn" onclick="generateImage()" style="margin-left:8px;">円を生成する</button>' +
+  '</div>' +
+  '<img id="generatedImage" style="display:none; width:100%; margin-top:16px; border-radius:4px;" />';
   }
 
   var resultEl = document.getElementById('result');
@@ -426,6 +427,35 @@ function copyAndOpen() {
   });
 }
 
+async function generateImage() {
+  var prompt = document.getElementById('promptText').textContent;
+  var btn = document.getElementById('imageGenBtn');
+  btn.textContent = '生成中...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt })
+    });
+    const data = await res.json();
+    if (data.url) {
+      var img = document.getElementById('generatedImage');
+      img.src = data.url;
+      img.style.display = 'block';
+    } else {
+      alert('画像生成に失敗しました');
+    }
+  } catch (err) {
+    alert('エラーが発生しました');
+    console.error(err);
+  } finally {
+    btn.textContent = '円を生成する';
+    btn.disabled = false;
+  }
+}  
+  
 function retry() {
   document.getElementById('result').classList.remove('show');
   setTimeout(function() {
