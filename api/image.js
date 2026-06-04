@@ -18,14 +18,16 @@ module.exports = async function handler(req, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
+          generationConfig: {
+            responseModalities: ['IMAGE', 'TEXT']
+          }
         })
       }
     );
 
     const text = await response.text();
-    console.log('Gemini status:', response.status);
-    console.log('Gemini response:', text.slice(0, 500));
+    console.log('Gemini Image status:', response.status);
+    console.log('Gemini Image response:', text.slice(0, 300));
 
     if (!response.ok) {
       return res.status(response.status).json({ error: 'Gemini API error', detail: text });
