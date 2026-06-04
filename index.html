@@ -520,14 +520,23 @@ flow 高 → 流れる・ほどける・波がほどける・線が泳ぐ・風�
 circle_completion 低 → 円にならない・途切れた輪・開いたまま
 
 【画像プロンプト生成指示】
-Gemini Imagen3で生成する。以下の構造で英語プロンプトを組み立てること。
-- スタイル: "enso circle, ink brush on Japanese washi paper, minimalist zen painting"
-- 線質: clarity高→"smooth flowing brushstroke", clarity低→"blurred diffused stroke", noise高→"textured scattered ink", tension高→"sharp angular stroke", flow高→"fluid wave-like curves"
-- 色調: clarity高→"deep indigo and white", clarity低→"gray misty tones", noise高→"dark ink with red-brown splatter", tension高→"sharp black deep navy", flow高→"teal soft gradient wash"
-- 余白: circle_completion高→"closed circle centered, generous negative space", circle_completion低→"incomplete open circle, asymmetric composition"
-- フェーズ追加指示: 嵐の海→"storm energy swirling brushstroke", 大潮→"bold powerful brushstroke", 蒼穹→"clear sky luminous ink", 天地人→"calm balanced centered circle"
-- 末尾必須: "single enso, no text, no border, high resolution, white background"
+Gemini gemini-2.5-flash-imageで生成する。フェーズごとに以下のベーステンプレートを使い、ZENパラメータで動的に調整すること。
 
+フェーズ別ベーステンプレート：
+- 天地人: "minimalist enso circle, traditional Japanese ink brush on washi paper, single continuous smooth brushstroke, perfectly closed circle centered, deep indigo and subtle white gradient, generous negative space, extreme minimalism, zen aesthetic, calm still water reflection, no text, no additional elements, soft lighting, high resolution, artistic photography of physical artwork"
+- 大潮: "enso circle transforming into ocean waves, fluid ink brushwork with marine currents, deep blue indigo and teal, organic flowing forms, subtle ripple motifs, washi paper texture, balanced but dynamic, single enso, no text, high resolution"
+- 蒼穹: "luminous transparent enso circle, ethereal ink on washi paper, glowing white and pale indigo, sky light and cloud texture, minimalist with abundant negative space, spiritual calm, soft glow, single enso, no text, high resolution"
+- 嵐の海: "turbulent enso circle, chaotic ink brush on washi paper, storm energy swirling brushstroke, dark indigo with dramatic tension, dynamic composition, wave-like strokes, washi paper texture, single enso, no text, high resolution"
+
+ZENパラメータによる追加調整：
+- clarity高(70以上)→ "smooth flowing brushstroke, luminous ink"を追加
+- clarity低(30以下)→ "blurred diffused stroke, misty gray tones"を追加
+- noise高(70以上)→ "textured scattered ink, subtle digital grain"を追加
+- tension高(70以上)→ "sharp angular stroke, high contrast"を追加
+- flow高(70以上)→ "fluid wave-like curves, organic movement"を追加
+- circle_completion低(30以下)→ "incomplete open circle, asymmetric composition"を追加
+
+末尾必須追記: "no text, no border, no signature, no frame, single enso only, white background, high resolution"
 【ZEN0発火条件】
 入力が完全に無意味、または矛盾した指示、または全パラメータがゼロの場合のみ発火。
 
