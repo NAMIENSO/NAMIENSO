@@ -812,11 +812,10 @@ function generateImage(prompt) {
       } else {
         ctx.lineTo(x + n2 * layer, y + n2 * layer);
       }
-    }
-
+　}
     ctx.strokeStyle = col.stroke;
     ctx.globalAlpha = layerAlpha * (1 - noise * 0.2);
-    ctx.lineWidth = lineWidthBase * pressureVar;
+    ctx.lineWidth = lineWidthBase;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
