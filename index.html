@@ -574,12 +574,15 @@ const LOADING_WORDS = [
 let loadingInterval = null;
 let currentResult = null;
 
-function startLoadingWords() {
+function startLoadingWords(isZenp) {
   let i = 0;
-  document.getElementById('loadingWords').textContent = LOADING_WORDS[0];
+  const words = isZenp
+    ? ['mode:ZENp（possibility）', '観測前', '無限の可能性', '線はまだ揺れていない']
+    : LOADING_WORDS;
+  document.getElementById('loadingWords').textContent = words[0];
   loadingInterval = setInterval(() => {
-    i = (i + 1) % LOADING_WORDS.length;
-    document.getElementById('loadingWords').textContent = LOADING_WORDS[i];
+    i = (i + 1) % words.length;
+    document.getElementById('loadingWords').textContent = words[i];
   }, 2200);
 }
 function stopLoadingWords() {
@@ -590,10 +593,7 @@ async function startObservation() {
   const event = document.getElementById('event').value.trim();
   const mood = document.getElementById('mood').value.trim();
 
-  if (!event && !mood) {
-    showError('今日あったことか、今の気分を入力してください。');
-    return;
-  }
+　const isZenp = !event && !mood;
 
   const theme = document.getElementById('theme').value.trim();
   const date = document.getElementById('date').value;
@@ -610,7 +610,9 @@ async function startObservation() {
     windspeed ? '風速：' + windspeed + 'm/s' : '',
   ].filter(Boolean).join(' ');
 
-  const userInput = (naturalData ? naturalData + '\n' : '') +
+const userInput = isZenp
+  ? 'mode:ZENp（possibility）。入力なし。観測前の無限の可能性の状態。ZENpモードで生成すること。'
+  : (naturalData ? naturalData + '\n' : '') +
     '今日あったこと：' + (event || '（未入力）') + '\n' +
     '今の気分：' + (mood || '（未入力）') + '\n' +
     '頭の中のテーマ：' + (theme || '（なし）');
@@ -619,7 +621,7 @@ async function startObservation() {
   document.getElementById('errorMsg').classList.remove('show');
   document.getElementById('inputZone').style.display = 'none';
   document.getElementById('loadingScreen').classList.add('show');
-  startLoadingWords();
+  startLoadingWords(isZenp);
 
   try {
     const keyRes = await fetch('/api/key');
