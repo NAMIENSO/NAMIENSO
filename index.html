@@ -726,129 +726,35 @@ function renderResult(result) {
   }
 }
 
-function generateImage(prompt) {
+async function generateImage(prompt) {
   const placeholder = document.getElementById('imgPlaceholder');
-  const imgEl = document.getElementById('generatedImg');
-  if (placeholder) placeholder.style.display = 'none';
+  const img = document.getElementById('generatedImg');
 
-  const p = currentResult.params;
-  const phase = currentResult.phase;
+  try {
+    const res = await fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt })
+    });
 
-  const canvas = document.createElement('canvas');
-  canvas.width = 800;
-  canvas.height = 800;
-  const ctx = canvas.getContext('2d');
+    if (!res.ok) throw new Error('image API error: ' + res.status);
+    const data = await res.json();
 
-  // 背景
-  ctx.fillStyle = '#f4f1ea';
-  ctx.fillRect(0, 0, 800, 800);
-
-  const cx = 400, cy = 400;
-  const baseR = 260;
-
-  // パラメータを正規化
-  const clarity = p.clarity / 100;
-  const noise = p.noise / 100;
-  const tension = p.tension / 100;
-  const flow = p.flow / 100;
-  const completion = p.circle_completion / 100;
-
-  // フェーズ別カラー
-  const phaseColors = {
-    '嵐の海': { stroke: '#1a2a4a', shadow: 'rgba(80,40,10,0.18)' },
-    '大潮':   { stroke: '#1a3a5c', shadow: 'rgba(26,58,92,0.15)' },
-    '蒼穹':   { stroke: '#2a5a7a', shadow: 'rgba(42,90,122,0.12)' },
-    '天地人': { stroke: '#2a4a3a', shadow: 'rgba(42,74,58,0.12)' },
-  };
-  const col = phaseColors[phase] || phaseColors['天地人'];
-
-  // 筆のかすれ感（noiseで制御）
-  const segments = 180;
-  const noiseAmp = noise * 18 + tension * 8;
-  const flowWave = flow * 12;
-
-  // 円を描く
-  // circle_completionで開き具合を決める（低いと円が閉じない）
-  const gapAngle = (1 - completion) * Math.PI * 0.6;
-  const startAngle = -Math.PI / 2 + gapAngle / 2;
-  const endAngle = startAngle + (Math.PI * 2 - gapAngle);
-
-  // 線の太さ（tensionで変化）
-  const lineWidthBase = 6 + tension * 8;
-
-  // シード的な乱数（パラメータから決定論的に生成）
-  function seededRand(i) {
-    const x = Math.sin(i * 127.1 + p.clarity * 31.7 + p.noise * 74.3) * 43758.5453;
-    return x - Math.floor(x);
-  }
-
-  ctx.save();
-
-  // 複数レイヤーで筆感を出す
-  for (let layer = 0; layer < 3; layer++) {
-    const layerAlpha = layer === 0 ? 0.85 : layer === 1 ? 0.35 : 0.15;
-    const layerOffset = layer * 2;
-
-    ctx.beginPath();
-
-    for (let i = 0; i <= segments; i++) {
-      const t = i / segments;
-      const angle = startAngle + t * (endAngle - startAngle);
-
-      // ノイズによる半径のゆらぎ
-      const n1 = seededRand(i + layer * 100) * 2 - 1;
-      const n2 = seededRand(i + layer * 100 + 50) * 2 - 1;
-      const noiseR = n1 * noiseAmp + Math.sin(t * Math.PI * 6 + layer) * flowWave;
-
-      // 筆圧変化（線の太さのゆらぎ）
-      const pressureVar = 1 + (seededRand(i + layer * 200) - 0.5) * noise * 0.8;
-      const r = baseR + noiseR + layerOffset;
-
-      const x = cx + r * Math.cos(angle);
-      const y = cy + r * Math.sin(angle);
-
-      if (i === 0) {
-        ctx.moveTo(x + n2 * 2, y + n2 * 2);
-      } else {
-        ctx.lineTo(x + n2 * layer, y + n2 * layer);
-      }
-　}
-    ctx.strokeStyle = col.stroke;
-    ctx.globalAlpha = layerAlpha * (1 - noise * 0.2);
-    ctx.lineWidth = lineWidthBase;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.stroke();
-  }
-
-  ctx.restore();
-
-  // clarityが高いと細い輝線を追加
-  if (clarity > 0.5) {
-    ctx.save();
-    ctx.globalAlpha = (clarity - 0.5) * 0.4;
-    ctx.beginPath();
-    for (let i = 0; i <= segments; i++) {
-      const t = i / segments;
-      const angle = startAngle + t * (endAngle - startAngle);
-      const r = baseR - 3;
-      const x = cx + r * Math.cos(angle);
-      const y = cy + r * Math.sin(angle);
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    if (data.b64) {
+      const src = 'data:image/png;base64,' + data.b64;
+      img.onload = () => {
+        img.classList.add('loaded');
+        if (placeholder) placeholder.style.display = 'none';
+      };
+      img.src = src;
+    } else {
+      if (placeholder) placeholder.textContent = '画像生成に失敗しました';
     }
-    ctx.strokeStyle = '#4a7a9b';
-    ctx.lineWidth = 1.5;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    ctx.restore();
+  } catch (err) {
+    console.error('Image gen error:', err);
+    if (placeholder) placeholder.textContent = '画像生成に失敗しました';
   }
-
-  // 完成した円をimgに反映
-  const dataUrl = canvas.toDataURL('image/png');
-  imgEl.onload = () => imgEl.classList.add('loaded');
-  imgEl.src = dataUrl;
-}
-function saveImage() {
+}function saveImage() {
   const img = document.getElementById('generatedImg');
   if (!img || !img.src || img.src === window.location.href) {
     alert('画像がまだ生成されていません');
