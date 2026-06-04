@@ -654,7 +654,7 @@ const userInput = isZenp
     currentResult = parsed;
     stopLoadingWords();
     document.getElementById('loadingScreen').classList.remove('show');
-    renderResult(parsed);
+    renderResult(parsed, isZenp);
 
   } catch (err) {
     stopLoadingWords();
@@ -666,7 +666,7 @@ const userInput = isZenp
   }
 }
 
-function renderResult(result) {
+function renderResult(result, isZenp = false) {
   const container = document.getElementById('resultContent');
 
   if (result.zen0) {
@@ -690,7 +690,7 @@ function renderResult(result) {
       </div>
 
       <div class="phase-badge">
-        <span class="phase-name">${result.phase}</span>
+        <span class="phase-name">${isZenp ? 'mode:ZENp（possibility）' : result.phase}</span>
         <p style="font-size:10px;letter-spacing:0.2em;color:var(--mist);margin-top:10px;">
           USHIO ${result.ushio} &nbsp;·&nbsp; GYOUN ${result.gyoun}
         </p>
