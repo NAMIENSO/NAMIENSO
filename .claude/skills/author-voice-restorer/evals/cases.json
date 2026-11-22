@@ -98,7 +98,7 @@
       "id": "E14", "name": "highlight inflation", "mode": "Structural Cleanup + Layout", "request": "Web小説の冒頭です。空行の入れ方を診断して。本文は直さないで。",
       "manuscript": "「おはよう」\n\n「おはよ」\n\n「眠そうだね」\n\n「昨日遅くて」\n\nユイはあくびをした。\n\n机の上に、見覚えのない封筒が置いてあった。\n\n「これ、誰の？」",
       "context": "挨拶の掛け合いは日常の導入。封筒が事件の発端。", "reference_text": null,
-      "expected_categories": ["highlight_inflation", "block_cohesion"], "must": ["挨拶からあくびまでの掛け合いを一まとまりにする方向を示す", "封筒の発見は独立を保つ判断を示す"],
+      "expected_categories": ["highlight_inflation", "block_cohesion"], "must": ["連続する挨拶の台詞の間の空行を詰め、一つの台詞ブロックにする方向を示す", "台詞と地の文の間の空行は作者の表記ルールとして保つ", "封筒の発見は独立を保つ判断を示す"],
       "must_not": ["改稿文や修正版を提示する", "封筒の発見までブロックに埋める"]
     },
     {
