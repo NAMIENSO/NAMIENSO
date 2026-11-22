@@ -15,17 +15,21 @@ skills/author-voice-restorer/
 │   ├── editing-principles.md
 │   ├── diagnostics.md
 │   ├── author-voice.md
+│   ├── block-highlight.md
 │   └── research-background.md
 ├── examples/
 │   ├── diagnosis-only.md
 │   ├── standard-rewrite.md
-│   └── voice-restore.md
+│   ├── voice-restore.md
+│   └── layout-adjust.md
 └── evals/
     ├── README.md
     └── cases.json
 ```
 
 全資料は[SKILL.md](SKILL.md)から一段で参照する。参照原稿なしのStructural Cleanup、人物・場面設定を使うContextual Editing、作者自身の参照を最優先するAuthor Voice Restoreの3モード。強度はlight/standard/aggressive、既定standard。
+
+Web小説では、どのモードにも重ねて**レイアウト観点（ブロックとハイライト）**を使う。関連する内容をまとまり（ブロック）として読ませ、問題・条件・決断・転換・決着・引き（ハイライト）を空行で浮かせて、精読でも流し読みでも物語を追えるようにする。「レイアウトだけ」の依頼では本文の文字列を変えず、空行の追加・削除だけを行う。[詳細](references/block-highlight.md)
 
 ## Install / verify（Windows・PowerShell）
 
@@ -79,10 +83,11 @@ project installationは`.claude/skills/author-voice-restorer/`。[公式skills�
 - **A**「この小説のAIっぽさを消して。」→ standard cleanup。AI判定へ進まず、文章編集として必要な範囲を改稿する。[例](examples/standard-rewrite.md)
 - **B**「診断だけして。本文は直さないで。」→ diagnosis only。部分改稿も勝手に提示しない。[例](examples/diagnosis-only.md)
 - **C**「この過去作を私の文体の参考にして、新しい原稿を私らしい文章へ戻して。」→ Author Voice Restore。自作の参照原稿と新原稿を分けて提供する。[例](examples/voice-restore.md)
+- **D**「レイアウトだけ調整して。本文は変えないで。」→ レイアウトのみ。空行だけを調整し、流し読み経路を示す。本文変更が必要なら提案として別記する。[例](examples/layout-adjust.md)
 
 作者参照は地の文・人物台詞を区別し、どの作品／場面の声を優先するか指定できる。平均文長や句読点を数値で合わせるのではなく、省略、語りの距離、短文、情報順、ユーモア等の選択を参考にする。参照がなければ作者の文体を捏造しない。
 
-主な診断は説明重複、読者が分かる内容の再説明、過剰な主体再提示、連続する汎用反応、抽象語への逃避、接続の過説明、末尾要約、場面に合わない単調さ、交換可能な台詞、場面固有性の薄さ、作者参照からの逸脱。特定語句や反応の禁止リストではない。
+主な診断は説明重複、読者が分かる内容の再説明、過剰な主体再提示、連続する汎用反応、抽象語への逃避、接続の過説明、末尾要約、場面に合わない単調さ、交換可能な台詞、場面固有性の薄さ、作者参照からの逸脱。レイアウト観点では、ハイライトの埋没、ハイライトの過剰、ブロックの分断・詰め込み、流し読み経路の欠落。特定語句や反応の禁止リストではない。
 
 ## Cross-provider behavioral contract
 
@@ -97,7 +102,7 @@ YOMIKUSA研究では小標本の候補は不安定で、題材・genre・作者�
 .\.venv\Scripts\python.exe scripts/verify_skill.py
 ```
 
-自作12ケースは[eval手順](evals/README.md)と[cases.json](evals/cases.json)に保存。expected項目は評価者専用で、モデルへの入力には含めない。AI生成を判定するgraderではなく編集契約の評価である。
+自作16ケース（うちE13〜E16はレイアウト観点）は[eval手順](evals/README.md)と[cases.json](evals/cases.json)に保存。expected項目は評価者専用で、モデルへの入力には含めない。AI生成を判定するgraderではなく編集契約の評価である。
 
 静的検証と同期testsは実モデルの編集品質を保証しない。実際に両環境の出力を比較していなければcross-provider behavioral evalはnot run。文脈の解釈・修正案・確信度はモデルによって異なりうる。短い参照から作者全体を推測せず、設定不足で意味が変わりうる編集には不確実さを示す。
 

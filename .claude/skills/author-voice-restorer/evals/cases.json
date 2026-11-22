@@ -86,6 +86,34 @@
       "context": "過去作・人物の癖は未提供。", "reference_text": null,
       "expected_categories": ["redundant_explanation"], "must": ["作者参照がないため一般的な小説編集であると明示する", "可能な局所編集を行う"],
       "must_not": ["作者特有のユーモアや過去を捏造する", "作者本人の文体を復元できたと断定する"]
+    },
+    {
+      "id": "E13", "name": "layout only preserves text", "mode": "Structural Cleanup + Layout", "request": "Web小説です。レイアウトだけ調整して。本文は変えないで。",
+      "manuscript": "門は閉まっていた。\n「どうする？」\n「待つしかないだろ」\n灯は鞄を足元に置き、門柱にもたれた。カイは石畳の継ぎ目を靴先でなぞっている。\n詰所の窓に、今日付の札が下がっていた。『本日、通行は日没まで』。\n空はもう橙色だった。\n「走れば間に合う。東の通用口だ」\n灯は鞄を掴んだ。",
+      "context": "札の文言が行動の制約条件。待つ二人の掛け合いは日常の導入。", "reference_text": null,
+      "expected_categories": ["buried_highlight"], "must": ["空行を除いた本文の文字列を原文と一致させる", "流し読み経路を示す", "札の条件または決断を浮かせる配置を示す"],
+      "must_not": ["語句・句読点を変える", "全段落に機械的に空行を入れる", "説明文や要約を書き足す"]
+    },
+    {
+      "id": "E14", "name": "highlight inflation", "mode": "Structural Cleanup + Layout", "request": "Web小説の冒頭です。空行の入れ方を診断して。本文は直さないで。",
+      "manuscript": "「おはよう」\n\n「おはよ」\n\n「眠そうだね」\n\n「昨日遅くて」\n\nユイはあくびをした。\n\n机の上に、見覚えのない封筒が置いてあった。\n\n「これ、誰の？」",
+      "context": "挨拶の掛け合いは日常の導入。封筒が事件の発端。", "reference_text": null,
+      "expected_categories": ["highlight_inflation", "block_cohesion"], "must": ["挨拶からあくびまでの掛け合いを一まとまりにする方向を示す", "封筒の発見は独立を保つ判断を示す"],
+      "must_not": ["改稿文や修正版を提示する", "封筒の発見までブロックに埋める"]
+    },
+    {
+      "id": "E15", "name": "foreshadowing stays in block", "mode": "Contextual Editing + Layout", "request": "流し読みでも話が追えるか、レイアウトを診断して。本文は直さないで。",
+      "manuscript": "老婆は湯呑みを置いた。指には古い銀の指輪が二つ、重ねてはめてある。\n「井戸のことなら、もう誰も覚えちゃいないよ」\n\n井戸は三十年前に埋められていた。\n\n千尋は礼を言って席を立った。",
+      "context": "指輪が二つであることは終盤で明かす伏線。現段階では読者に注目させたくない。", "reference_text": null,
+      "expected_categories": [], "must": ["指輪の描写をブロック内に残す判断を伏線保護として説明する", "井戸の情報の独立を妥当と扱う"],
+      "must_not": ["指輪の行を独立させる提案をする", "伏線が流し読み経路に出ないことを欠落として指摘する", "改稿文を提示する"]
+    },
+    {
+      "id": "E16", "name": "skim gap without added explanation", "mode": "Structural Cleanup + Layout", "request": "Web小説です。standardで直して。流し読みでも話が追えるようにしたい。",
+      "manuscript": "「行くな」\n\n兄の声は低かった。\n\n湊は返事をせず、窓の外を見た。雨はまだ止まない。橋が落ちたという噂は昼から流れていて、隣家の主人が戻らないことも、村の誰もが知っていた。棚の上の救急箱はもう鞄に詰めてある。\n\n「行ってくる」",
+      "context": "湊が出かける理由は隣家の主人を探すため。理由を伏せる意図はない。", "reference_text": null,
+      "expected_categories": ["skim_path_gap", "buried_highlight"], "must": ["決断の理由が長い段落に埋もれていることを指摘する", "既存文の配置や段落分割で因果を浮かせる"],
+      "must_not": ["「湊は隣家の主人を助けに行くと決めた」等の説明・要約を書き足す", "台詞の語句を変える"]
     }
   ]
 }
